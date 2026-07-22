@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Daily Picks Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f1117; color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 24px; min-height: 100vh;
+  }
+  h1 { text-align:center; font-size:1.6rem; font-weight:600; margin-bottom:6px; color:#fff; }
+  .subtitle { text-align:center; font-size:0.82rem; color:#666; margin-bottom:28px; }
+  .summary-row { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:28px; }
+  .stat-card {
+    background:#1a1d27; border:1px solid #2a2d3a; border-radius:10px;
+    padding:14px 22px; text-align:center; min-width:130px;
+  }
+  .stat-card .value { font-size:1.75rem; font-weight:700; color:#fff; }
+  .stat-card .label { font-size:0.73rem; color:#888; margin-top:4px; text-transform:uppercase; letter-spacing:0.5px; }
+  .stat-card.green .value { color:#4caf80; }
+  .stat-card.red   .value { color:#ef5350; }
+  .stat-card.blue  .value { color:#5b9bd5; }
+  .stat-card.amber .value { color:#ffb347; }
+  .winner-banner { max-width:1300px; margin:0 auto 26px; display:flex; align-items:center; gap:14px;
+    background:linear-gradient(90deg,#14261b,#141824); border:1px solid #2b4a34; border-radius:10px;
+    padding:10px 14px; overflow:hidden; }
+  .wb-label { flex:0 0 auto; color:#ffd24d; font-weight:700; font-size:0.78rem; text-transform:uppercase;
+    letter-spacing:0.5px; white-space:nowrap; }
+  .wb-viewport { flex:1 1 auto; overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent); }
+  .wb-track { display:inline-flex; white-space:nowrap; animation-name:wb-scroll; animation-timing-function:linear; animation-iteration-count:infinite; }
+  .wb-track:hover { animation-play-state:paused; }
+  .wb-item { padding:0 24px; font-size:0.9rem; color:#cdd3dc; white-space:nowrap; border-right:1px solid #263042; }
+  .wb-item b { color:#fff; }
+  .wb-race { color:#8b93a0; font-size:0.85em; }
+  .wb-sp { color:#4caf80; font-weight:700; }
+  @keyframes wb-scroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; max-width:1300px; margin:0 auto; }
+  @media (max-width:900px) { .charts-grid { grid-template-columns:1fr; } }
+  .chart-card {
+    background:#1a1d27; border:1px solid #2a2d3a;
+    border-radius:12px; padding:18px;
+  }
+  .chart-card h2 { font-size:0.9rem; font-weight:600; color:#ccc; margin-bottom:14px; }
+  .chart-box { position:relative; height:280px; width:100%; }
+  .chart-box.wide { height:240px; }
+  .table-card {
+    grid-column:1 / -1; background:#1a1d27; border:1px solid #2a2d3a;
+    border-radius:12px; padding:18px; overflow-x:auto;
+  }
+  .table-card h2 { font-size:0.9rem; font-weight:600; color:#ccc; margin-bottom:14px; }
+  table { width:100%; border-collapse:collapse; font-size:0.84rem; }
+  th {
+    background:#12141e; color:#aaa; padding:8px 12px;
+    text-align:right; font-size:0.76rem; text-transform:uppercase;
+    letter-spacing:0.4px; border-bottom:1px solid #2a2d3a;
+  }
+  th:first-child { text-align:left; }
+  td { padding:8px 12px; text-align:right; border-bottom:1px solid #1e2130; color:#ddd; }
+  td:first-child { text-align:left; color:#aaa; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#1e2233; }
+  .win { color:#4caf80; font-weight:600; }
+  .loss { color:#ef5350; }
+  .na  { color:#555; }
+</style>
+</head>
+<body>
+<h1>🏇 Daily Picks Performance Dashboard</h1>
+<p class="subtitle">Updated 22 Jul 2026 21:29 AEST</p>
+
+<div class="summary-row">
+  <div class="stat-card green"><div class="value">239</div><div class="label">Total Wins</div></div>
+  <div class="stat-card red">  <div class="value">500</div><div class="label">Total Losses</div></div>
+  <div class="stat-card blue"> <div class="value">819</div><div class="label">Total Picks</div></div>
+  <div class="stat-card amber"><div class="value">32.3%</div><div class="label">Overall Win %</div></div>
+  <div class="stat-card">     <div class="value">$4.0</div><div class="label">Avg SP ($)</div></div>
+  <div class="stat-card" style="background:#2e1a1a;border-color:#ef535055">
+    <div class="value" style="color:#ef5350">$-560</div>
+    <div class="label">P&amp;L ($100/pick) · ROI -0.8%</div>
+  </div>
+</div>
+<p class="subtitle" style="margin-top:-14px">Level $100 win bet on every pick at its actual SP · from 1 Jul 2026</p>
+
+<div class="winner-banner"><div class="wb-label">🏆 22 Jul Winners (18)</div><div class="wb-viewport"><div class="wb-track" style="animation-duration:54s"><span class="wb-item"><b>The Perfect One</b> <span class="wb-race">Cambridge Synthetic R5</span> <span class="wb-sp">$1.80</span></span><span class="wb-item"><b>Pine Leaf</b> <span class="wb-race">Cambridge Synthetic R8</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Persian Wonder</b> <span class="wb-race">Canterbury R2</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Krasina</b> <span class="wb-race">Canterbury R3</span> <span class="wb-sp">$1.80</span></span><span class="wb-item"><b>Velaris</b> <span class="wb-race">Canterbury R4</span> <span class="wb-sp">$2.50</span></span><span class="wb-item"><b>Watson</b> <span class="wb-race">Canterbury R6</span> <span class="wb-sp">$2.75</span></span><span class="wb-item"><b>Crusader Voyage</b> <span class="wb-race">Doomben R6</span> <span class="wb-sp">$4.75</span></span><span class="wb-item"><b>Facundo</b> <span class="wb-race">Doomben R7</span> <span class="wb-sp">$2.38</span></span><span class="wb-item"><b>Paganini</b> <span class="wb-race">Murray Bridge Gh R2</span> <span class="wb-sp">$2.25</span></span><span class="wb-item"><b>Meg&#x27;s Magic</b> <span class="wb-race">Murray Bridge Gh R3</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Reciprocal</b> <span class="wb-race">Murray Bridge Gh R5</span> <span class="wb-sp">$4.00</span></span><span class="wb-item"><b>Luka Magic</b> <span class="wb-race">Pinjarra Scarpside R1</span> <span class="wb-sp">$6.50</span></span><span class="wb-item"><b>Dirty Habits</b> <span class="wb-race">Pinjarra Scarpside R2</span> <span class="wb-sp">$1.57</span></span><span class="wb-item"><b>Countersunk</b> <span class="wb-race">Pinjarra Scarpside R3</span> <span class="wb-sp">$7.00</span></span><span class="wb-item"><b>Optimus Prime</b> <span class="wb-race">Pinjarra Scarpside R4</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Hi Val</b> <span class="wb-race">Sandown Hillside R4</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Saluted</b> <span class="wb-race">Sandown Hillside R5</span> <span class="wb-sp">$2.88</span></span><span class="wb-item"><b>Perfect Ten</b> <span class="wb-race">Sandown Hillside R6</span> <span class="wb-sp">$2.38</span></span><span class="wb-item"><b>The Perfect One</b> <span class="wb-race">Cambridge Synthetic R5</span> <span class="wb-sp">$1.80</span></span><span class="wb-item"><b>Pine Leaf</b> <span class="wb-race">Cambridge Synthetic R8</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Persian Wonder</b> <span class="wb-race">Canterbury R2</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Krasina</b> <span class="wb-race">Canterbury R3</span> <span class="wb-sp">$1.80</span></span><span class="wb-item"><b>Velaris</b> <span class="wb-race">Canterbury R4</span> <span class="wb-sp">$2.50</span></span><span class="wb-item"><b>Watson</b> <span class="wb-race">Canterbury R6</span> <span class="wb-sp">$2.75</span></span><span class="wb-item"><b>Crusader Voyage</b> <span class="wb-race">Doomben R6</span> <span class="wb-sp">$4.75</span></span><span class="wb-item"><b>Facundo</b> <span class="wb-race">Doomben R7</span> <span class="wb-sp">$2.38</span></span><span class="wb-item"><b>Paganini</b> <span class="wb-race">Murray Bridge Gh R2</span> <span class="wb-sp">$2.25</span></span><span class="wb-item"><b>Meg&#x27;s Magic</b> <span class="wb-race">Murray Bridge Gh R3</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Reciprocal</b> <span class="wb-race">Murray Bridge Gh R5</span> <span class="wb-sp">$4.00</span></span><span class="wb-item"><b>Luka Magic</b> <span class="wb-race">Pinjarra Scarpside R1</span> <span class="wb-sp">$6.50</span></span><span class="wb-item"><b>Dirty Habits</b> <span class="wb-race">Pinjarra Scarpside R2</span> <span class="wb-sp">$1.57</span></span><span class="wb-item"><b>Countersunk</b> <span class="wb-race">Pinjarra Scarpside R3</span> <span class="wb-sp">$7.00</span></span><span class="wb-item"><b>Optimus Prime</b> <span class="wb-race">Pinjarra Scarpside R4</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Hi Val</b> <span class="wb-race">Sandown Hillside R4</span> <span class="wb-sp">$3.25</span></span><span class="wb-item"><b>Saluted</b> <span class="wb-race">Sandown Hillside R5</span> <span class="wb-sp">$2.88</span></span><span class="wb-item"><b>Perfect Ten</b> <span class="wb-race">Sandown Hillside R6</span> <span class="wb-sp">$2.38</span></span></div></div></div>
+
+<div class="charts-grid">
+
+  <div class="chart-card">
+    <h2>📊 Winners % vs Losers % — by Day</h2>
+    <div class="chart-box"><canvas id="winLossChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <h2>💰 Avg SP ($) vs Total Picks — by Day</h2>
+    <div class="chart-box"><canvas id="spPicksChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <h2>🏆 Wins vs Settled Picks — by Day</h2>
+    <div class="chart-box"><canvas id="winsVsPicksChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <h2>📈 Cumulative Wins vs Losses</h2>
+    <div class="chart-box"><canvas id="cumulativeChart"></canvas></div>
+  </div>
+
+  <div class="chart-card" style="grid-column:1 / -1">
+    <h2>💵 Daily P&amp;L + Cumulative P&amp;L — $100/pick</h2>
+    <div class="chart-box wide"><canvas id="pnlChart"></canvas></div>
+  </div>
+
+  <div class="table-card">
+    <h2>📋 Daily Summary Table</h2>
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Total Picks</th><th>Wins</th><th>Losses</th>
+        <th>Pending</th><th>Settled</th><th>Win %</th><th>Loss %</th>
+        <th>Avg SP ($)</th><th>P&amp;L ($100/pick)</th><th>Cumulative P&amp;L</th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const data    = [{"date": "1 Jul", "wins": 4, "losses": 5, "pending": 8, "avgSP": 4.34, "totalOddsEntries": 16, "spFallbacks": 10, "pnl": 101, "staked": 800, "excludedGoing": 41}, {"date": "2 Jul", "wins": 8, "losses": 21, "pending": 1, "avgSP": 4.08, "totalOddsEntries": 30, "spFallbacks": 7, "pnl": -593, "staked": 2900, "excludedGoing": 17}, {"date": "3 Jul", "wins": 9, "losses": 29, "pending": 8, "avgSP": 7.03, "totalOddsEntries": 42, "spFallbacks": 7, "pnl": -775, "staked": 3600, "excludedGoing": 20}, {"date": "4 Jul", "wins": 40, "losses": 69, "pending": 12, "avgSP": 3.51, "totalOddsEntries": 115, "spFallbacks": 15, "pnl": 2752, "staked": 10300, "excludedGoing": 28}, {"date": "5 Jul", "wins": 12, "losses": 28, "pending": 0, "avgSP": 4.5, "totalOddsEntries": 36, "spFallbacks": 2, "pnl": 164, "staked": 3600, "excludedGoing": 42}, {"date": "6 Jul", "wins": 2, "losses": 5, "pending": 0, "avgSP": 2.65, "totalOddsEntries": 7, "spFallbacks": 0, "pnl": -333, "staked": 700, "excludedGoing": 31}, {"date": "7 Jul", "wins": 6, "losses": 23, "pending": 0, "avgSP": 3.92, "totalOddsEntries": 29, "spFallbacks": 4, "pnl": -1549, "staked": 2900, "excludedGoing": 0}, {"date": "8 Jul", "wins": 7, "losses": 10, "pending": 9, "avgSP": 3.74, "totalOddsEntries": 17, "spFallbacks": 4, "pnl": 205, "staked": 1700, "excludedGoing": 44}, {"date": "9 Jul", "wins": 11, "losses": 14, "pending": 0, "avgSP": 3.53, "totalOddsEntries": 25, "spFallbacks": 6, "pnl": 599, "staked": 2500, "excludedGoing": 22}, {"date": "10 Jul", "wins": 6, "losses": 17, "pending": 0, "avgSP": 3.97, "totalOddsEntries": 21, "spFallbacks": 1, "pnl": -202, "staked": 2100, "excludedGoing": 24}, {"date": "11 Jul", "wins": 15, "losses": 57, "pending": 0, "avgSP": 3.69, "totalOddsEntries": 72, "spFallbacks": 1, "pnl": -2344, "staked": 7200, "excludedGoing": 68}, {"date": "12 Jul", "wins": 16, "losses": 30, "pending": 19, "avgSP": 3.45, "totalOddsEntries": 61, "spFallbacks": 16, "pnl": 94, "staked": 4600, "excludedGoing": 42}, {"date": "13 Jul", "wins": 11, "losses": 12, "pending": 0, "avgSP": 3.0, "totalOddsEntries": 23, "spFallbacks": 0, "pnl": 803, "staked": 2300, "excludedGoing": 9}, {"date": "14 Jul", "wins": 11, "losses": 12, "pending": 0, "avgSP": 3.51, "totalOddsEntries": 23, "spFallbacks": 0, "pnl": 556, "staked": 2300, "excludedGoing": 0}, {"date": "15 Jul", "wins": 9, "losses": 21, "pending": 9, "avgSP": 6.83, "totalOddsEntries": 30, "spFallbacks": 0, "pnl": 671, "staked": 3000, "excludedGoing": 22}, {"date": "16 Jul", "wins": 12, "losses": 19, "pending": 0, "avgSP": 3.11, "totalOddsEntries": 30, "spFallbacks": 2, "pnl": 91, "staked": 3000, "excludedGoing": 8}, {"date": "18 Jul", "wins": 17, "losses": 40, "pending": 11, "avgSP": 4.05, "totalOddsEntries": 67, "spFallbacks": 14, "pnl": -1033, "staked": 5600, "excludedGoing": 69}, {"date": "19 Jul", "wins": 10, "losses": 38, "pending": 2, "avgSP": 4.83, "totalOddsEntries": 42, "spFallbacks": 0, "pnl": -1209, "staked": 4200, "excludedGoing": 19}, {"date": "20 Jul", "wins": 11, "losses": 13, "pending": 0, "avgSP": 3.73, "totalOddsEntries": 22, "spFallbacks": 0, "pnl": 600, "staked": 2200, "excludedGoing": 8}, {"date": "21 Jul", "wins": 4, "losses": 10, "pending": 0, "avgSP": 2.86, "totalOddsEntries": 14, "spFallbacks": 0, "pnl": -539, "staked": 1400, "excludedGoing": 15}, {"date": "22 Jul", "wins": 18, "losses": 27, "pending": 1, "avgSP": 3.75, "totalOddsEntries": 46, "spFallbacks": 2, "pnl": 1381, "staked": 4500, "excludedGoing": 0}];
+const dpnl    = [101, -593, -775, 2752, 164, -333, -1549, 205, 599, -202, -2344, 94, 803, 556, 671, 91, -1033, -1209, 600, -539, 1381];
+const cpnl    = [101, -492, -1267, 1485, 1649, 1316, -233, -28, 571, 369, -1975, -1881, -1078, -522, 149, 240, -793, -2002, -1402, -1941, -560];
+const labels  = data.map(d => d.date);
+
+function settled(d)  { return (d.wins||0)+(d.losses||0); }
+function totalPicks(d) {
+  if (d.wins === null) return d.totalOddsEntries || 0;
+  return (d.wins||0)+(d.losses||0)+(d.pending||0);
+}
+function winPct(d)  { const s=settled(d); return s?d.wins/s*100:null; }
+function lossPct(d) { const s=settled(d); return s?d.losses/s*100:null; }
+
+Chart.defaults.color       = '#888';
+Chart.defaults.borderColor = '#2a2d3a';
+Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
+
+// Table
+const tbody = document.getElementById('tableBody');
+let run=0;
+data.forEach((d,i) => {
+  const s=settled(d), wp=winPct(d), lp=lossPct(d), tp=totalPicks(d);
+  const dp=dpnl[i], cp=cpnl[i];
+  if(dp!==null) run=cp;
+  const fmt = v => v===null ? '—' : (v>=0?'+':'')+' $'+Math.round(v).toLocaleString();
+  const cls = v => v===null?'na':v>=0?'win':'loss';
+  tbody.innerHTML += `<tr>
+    <td>${d.date}</td>
+    <td>${tp}</td>
+    <td class="${d.wins!==null?'win':'na'}">${d.wins!==null?d.wins:'—'}</td>
+    <td class="${d.losses!==null?'loss':'na'}">${d.losses!==null?d.losses:'—'}</td>
+    <td class="na">${d.pending!==null?d.pending:'—'}</td>
+    <td>${s>0?s:'—'}</td>
+    <td class="${wp!==null?(wp>=25?'win':''):'na'}">${wp!==null?wp.toFixed(1)+'%':'—'}</td>
+    <td class="${lp!==null?'loss':'na'}">${lp!==null?lp.toFixed(1)+'%':'—'}</td>
+    <td class="${d.avgSP?'':'na'}">${d.avgSP?'$'+d.avgSP:'—'}</td>
+    <td class="${cls(dp)}" style="font-weight:600">${fmt(dp)}</td>
+    <td class="${cls(cp)}">${fmt(cp)}</td>
+  </tr>`;
+});
+
+// Chart 1: Win% vs Loss%
+new Chart('winLossChart',{type:'bar',data:{labels,datasets:[
+  {label:'Win %',data:data.map(winPct),backgroundColor:'#4caf8099',borderColor:'#4caf80',borderWidth:1,borderRadius:3},
+  {label:'Loss %',data:data.map(lossPct),backgroundColor:'#ef535066',borderColor:'#ef5350',borderWidth:1,borderRadius:3}
+]},options:{responsive:true,maintainAspectRatio:false,
+  scales:{x:{grid:{color:'#1e2130'}},y:{min:0,max:100,grid:{color:'#1e2130'},ticks:{callback:v=>v+'%'}}},
+  plugins:{legend:{labels:{color:'#aaa',boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null?c.raw.toFixed(1)+'%':'No data')}}}
+}});
+
+// Chart 2: Avg SP + Picks
+new Chart('spPicksChart',{type:'bar',data:{labels,datasets:[
+  {type:'bar',label:'Total Picks',data:data.map(totalPicks),backgroundColor:'#5b9bd522',borderColor:'#5b9bd5',borderWidth:1,borderRadius:3,yAxisID:'yPicks'},
+  {type:'line',label:'Avg SP ($)',data:data.map(d=>d.avgSP),borderColor:'#ffb347',backgroundColor:'#ffb34733',pointBackgroundColor:'#ffb347',pointRadius:5,tension:0.35,yAxisID:'ySP',spanGaps:false}
+]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index'},
+  scales:{
+    x:{grid:{color:'#1e2130'}},
+    yPicks:{type:'linear',position:'left',grid:{color:'#1e2130'},title:{display:true,text:'Picks',color:'#5b9bd5',font:{size:11}}},
+    ySP:{type:'linear',position:'right',min:0,grid:{drawOnChartArea:false},ticks:{callback:v=>'$'+v.toFixed(1)},title:{display:true,text:'Avg SP ($)',color:'#ffb347',font:{size:11}}}
+  },
+  plugins:{legend:{labels:{color:'#aaa',boxWidth:12}}}
+}});
+
+// Chart 3: Wins vs Settled
+new Chart('winsVsPicksChart',{type:'bar',data:{labels,datasets:[
+  {label:'Settled',data:data.map(settled),backgroundColor:'#2a2d3a',borderColor:'#44475a',borderWidth:1,borderRadius:3},
+  {label:'Wins',data:data.map(d=>d.wins),backgroundColor:'#4caf8099',borderColor:'#4caf80',borderWidth:1,borderRadius:3}
+]},options:{responsive:true,maintainAspectRatio:false,
+  scales:{x:{grid:{color:'#1e2130'}},y:{grid:{color:'#1e2130'}}},
+  plugins:{legend:{labels:{color:'#aaa',boxWidth:12}}}
+}});
+
+// Chart 4: Cumulative Wins/Losses
+let cw=0,cl=0;
+const cumW=data.map(d=>{cw+=(d.wins||0);return cw;});
+const cumL=data.map(d=>{cl+=(d.losses||0);return cl;});
+new Chart('cumulativeChart',{type:'line',data:{labels,datasets:[
+  {label:'Cumulative Wins',data:cumW,borderColor:'#4caf80',backgroundColor:'#4caf8022',fill:true,tension:0.3,pointRadius:4},
+  {label:'Cumulative Losses',data:cumL,borderColor:'#ef5350',backgroundColor:'#ef535011',fill:true,tension:0.3,pointRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,
+  scales:{x:{grid:{color:'#1e2130'}},y:{grid:{color:'#1e2130'}}},
+  plugins:{legend:{labels:{color:'#aaa',boxWidth:12}}}
+}});
+
+// Chart 5: P&L
+new Chart('pnlChart',{type:'bar',data:{labels,datasets:[
+  {type:'bar',label:'Daily P&L',data:dpnl,
+    backgroundColor:dpnl.map(v=>v===null?'#333':v>=0?'#4caf8099':'#ef535099'),
+    borderColor:dpnl.map(v=>v===null?'#555':v>=0?'#4caf80':'#ef5350'),
+    borderWidth:1,borderRadius:4},
+  {type:'line',label:'Cumulative P&L',data:cpnl,borderColor:'#ffb347',backgroundColor:'transparent',
+    pointBackgroundColor:cpnl.map(v=>v===null?'transparent':v>=0?'#4caf80':'#ef5350'),
+    pointRadius:5,tension:0.3,spanGaps:false,yAxisID:'yCum'}
+]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index'},
+  scales:{
+    x:{grid:{color:'#1e2130'}},
+    y:{position:'left',grid:{color:'#1e2130'},ticks:{callback:v=>(v>=0?'+':'')+' $'+v.toLocaleString()},title:{display:true,text:'Daily P&L',color:'#aaa',font:{size:11}}},
+    yCum:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>(v>=0?'+':'')+' $'+v.toLocaleString()},title:{display:true,text:'Cumulative P&L',color:'#ffb347',font:{size:11}}}
+  },
+  plugins:{legend:{labels:{color:'#aaa',boxWidth:12}},
+    tooltip:{callbacks:{label:c=>c.raw===null?c.dataset.label+': No SP data':c.dataset.label+': '+(c.raw>=0?'+':'')+' $'+Math.round(c.raw).toLocaleString()}}}
+}});
+</script>
+</body>
+</html>
